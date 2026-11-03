@@ -1,0 +1,8 @@
+Réponds séparément à chacune de ces questions, chacune avec ses sources :
+
+1. L'épidémie d'Ebola explique-t-elle l'évolution du paludisme suspect ?
+2. Quel est le ratio de ratios de taux des IRA associé à Ebola ?
+3. Combien de cas confirmés d'Ebola y a-t-il en Ituri ?
+4. Combien de cas de choléra en semaine 50 ?
+5. Combien de cas de paludisme à Goma cette année ?
+6. Faut-il envoyer des TDR en priorité à Mongbwalu ?

@@ -75,7 +75,8 @@ evolutions <- par_semaine(function(s) {
   dplyr::bind_rows(lapply(codes, function(code) {
     e <- evolution_comparable(d[d$semaine <= s, ], code, s)
     tibble::tibble(maladie = code, cas_province = e$valeur, variation = e$variation,
-                   cas_base_comparable = e$base, zones_comparables = e$n_zones)
+                   cas_base_comparable = e$base, zones_comparables = e$n_zones,
+                   zones_comparables_avec_ligne = zones_comparables_avec_ligne(d[d$semaine <= s, ], code, s))
   }))
 })
 

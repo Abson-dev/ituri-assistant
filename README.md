@@ -10,7 +10,7 @@ The design is inspired by [eurostat-assistant](https://github.com/ainergy-hub/eu
 |---|---|---|
 | 1 | Export tables from the R pipeline | Done |
 | 2 | Read-only tools and a Claude Code skill | Done |
-| 3 | Evaluation on about 30 questions | To do |
+| 3 | Evaluation on 30 questions | Questions ready, first run to do |
 | 4 | Password-protected web app, with the Claude API | To do |
 | 5 | Real data, after written agreement from MSF and the DPS | Blocked |
 
@@ -61,6 +61,12 @@ Files go to `data/synthetic/`, which Git ignores. The exporter forces synthetic 
 | `catalogue.json` | Zones, diseases, weeks and data source |
 
 Indicators that depend on rules are computed by the pipeline, never by the assistant, so its figures match the dashboard and the reports.
+
+## Evaluation
+
+`evals/questions.json` holds 30 questions, split into five batches (`evals/lot_1.txt` to `lot_5.txt`). Paste each batch into a new Claude Code conversation.
+
+`evals/attendus.R` computes the expected answers from the R pipeline, without the Python tools. It refuses to write them inside this repository, because the agent under test can read this folder.
 
 ## Data rules
 

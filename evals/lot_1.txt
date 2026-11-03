@@ -1,0 +1,8 @@
+Réponds séparément à chacune de ces questions, chacune avec ses sources :
+
+1. Combien de cas de fièvre typhoïde ont été notifiés dans la province en semaine 30 ?
+2. Combien de décès de paludisme suspect ont été notifiés au total depuis le début de l'année ?
+3. Combien de cas de rougeole a-t-on à Bunia entre les semaines 30 et 43 ?
+4. Quelle est la population de référence de Nia-Nia ?
+5. Quel est le taux de pneumonie pour 100 000 habitants à Mahagi en semaine 40 ?
+6. Combien de zones ont rapporté en semaine 25 ?

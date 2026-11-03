@@ -1,0 +1,8 @@
+Réponds séparément à chacune de ces questions, chacune avec ses sources :
+
+1. Quel est le rapport entre paludisme confirmé et suspect en semaine 35 ?
+2. À la semaine 27, y avait-il déjà des zones en rupture de confirmation du paludisme ?
+3. Le paludisme confirmé a-t-il baissé dans la province entre les semaines 27 et 43 ?
+4. Quelle est la positivité du paludisme à Komanda en semaine 40 ?
+5. Le paludisme suspect diminue-t-il en semaine 43 ?
+6. Y a-t-il une alerte rougeole ou méningite en semaine 43 ?

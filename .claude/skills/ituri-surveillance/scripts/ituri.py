@@ -253,6 +253,7 @@ def situation(d: Donnees, a: argparse.Namespace) -> dict[str, Any]:
             "deces_semaine": t["deces"] if t["lignes"] else None,
             "zones_avec_ligne": t["lignes"],
             "variation_zones_comparables": variation, "zones_comparables": int(e["zones_comparables"]),
+            "zones_comparables_avec_ligne": int(e["zones_comparables_avec_ligne"]),
             "cumul_cas": t["cumul"], "cumul_deces": t["cumul_deces"],
         })
     presentes = d.zones_ayant_rapporte(s)

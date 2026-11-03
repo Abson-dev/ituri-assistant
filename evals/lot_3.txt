@@ -1,0 +1,8 @@
+Réponds séparément à chacune de ces questions, chacune avec ses sources :
+
+1. Quelles zones n'ont pas rapporté en semaine 18 ?
+2. Quelle est la couverture de rapportage de Lita à la semaine 43 ?
+3. Combien de cas d'IRA à Nyarambe en semaine 43 ?
+4. Quelles zones ont la couverture la plus faible sur les 4 dernières semaines ?
+5. Combien de conflits sont à arbitrer avec la DPS, et lesquels ?
+6. Quelles corrections ont été appliquées à la base, et combien de fois ?

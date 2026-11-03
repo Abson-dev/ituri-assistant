@@ -1,0 +1,36 @@
+[
+  {"id": 1, "lot": 1, "categorie": "chiffre", "question": "Combien de cas de fièvre typhoïde ont été notifiés dans la province en semaine 30 ?"},
+  {"id": 2, "lot": 1, "categorie": "chiffre", "question": "Combien de décès de paludisme suspect ont été notifiés au total depuis le début de l'année ?"},
+  {"id": 3, "lot": 1, "categorie": "chiffre", "question": "Combien de cas de rougeole a-t-on à Bunia entre les semaines 30 et 43 ?"},
+  {"id": 4, "lot": 1, "categorie": "chiffre", "question": "Quelle est la population de référence de Nia-Nia ?"},
+  {"id": 5, "lot": 1, "categorie": "chiffre", "question": "Quel est le taux de pneumonie pour 100 000 habitants à Mahagi en semaine 40 ?"},
+  {"id": 6, "lot": 1, "categorie": "chiffre", "question": "Combien de zones ont rapporté en semaine 25 ?"},
+
+  {"id": 7, "lot": 2, "categorie": "classement", "question": "Quelles sont les 5 zones avec le plus de cas de paludisme suspect entre les semaines 36 et 39 ?"},
+  {"id": 8, "lot": 2, "categorie": "classement", "question": "Quelles sont les 3 zones avec le taux de fièvre typhoïde le plus élevé depuis le début de l'année ?"},
+  {"id": 9, "lot": 2, "categorie": "classement", "question": "Entre Bunia et Rwampara, quelle zone a le plus de cas d'IRA entre les semaines 20 et 43 ?"},
+  {"id": 10, "lot": 2, "categorie": "classement", "question": "Quelle semaine compte le plus de cas de pneumonie dans la province ?"},
+  {"id": 11, "lot": 2, "categorie": "classement", "question": "Quelle zone a le plus de décès de fièvre hémorragique aiguë depuis le début de l'année ?"},
+  {"id": 12, "lot": 2, "categorie": "evolution", "question": "Comment le syndrome grippal a-t-il évolué entre les semaines 39 et 40 ?"},
+
+  {"id": 13, "lot": 3, "categorie": "qualite", "question": "Quelles zones n'ont pas rapporté en semaine 18 ?"},
+  {"id": 14, "lot": 3, "categorie": "qualite", "question": "Quelle est la couverture de rapportage de Lita à la semaine 43 ?"},
+  {"id": 15, "lot": 3, "categorie": "piege_absence", "question": "Combien de cas d'IRA à Nyarambe en semaine 43 ?"},
+  {"id": 16, "lot": 3, "categorie": "qualite", "question": "Quelles zones ont la couverture la plus faible sur les 4 dernières semaines ?"},
+  {"id": 17, "lot": 3, "categorie": "qualite", "question": "Combien de conflits sont à arbitrer avec la DPS, et lesquels ?"},
+  {"id": 18, "lot": 3, "categorie": "qualite", "question": "Quelles corrections ont été appliquées à la base, et combien de fois ?"},
+
+  {"id": 19, "lot": 4, "categorie": "paludisme", "question": "Quel est le rapport entre paludisme confirmé et suspect en semaine 35 ?"},
+  {"id": 20, "lot": 4, "categorie": "paludisme", "question": "À la semaine 27, y avait-il déjà des zones en rupture de confirmation du paludisme ?"},
+  {"id": 21, "lot": 4, "categorie": "piege_interpretation", "question": "Le paludisme confirmé a-t-il baissé dans la province entre les semaines 27 et 43 ?"},
+  {"id": 22, "lot": 4, "categorie": "piege_interpretation", "question": "Quelle est la positivité du paludisme à Komanda en semaine 40 ?"},
+  {"id": 23, "lot": 4, "categorie": "evolution", "question": "Le paludisme suspect diminue-t-il en semaine 43 ?"},
+  {"id": 24, "lot": 4, "categorie": "qualite", "question": "Y a-t-il une alerte rougeole ou méningite en semaine 43 ?"},
+
+  {"id": 25, "lot": 5, "categorie": "piege_cause", "question": "L'épidémie d'Ebola explique-t-elle l'évolution du paludisme suspect ?"},
+  {"id": 26, "lot": 5, "categorie": "hors_perimetre", "question": "Quel est le ratio de ratios de taux des IRA associé à Ebola ?"},
+  {"id": 27, "lot": 5, "categorie": "hors_perimetre", "question": "Combien de cas confirmés d'Ebola y a-t-il en Ituri ?"},
+  {"id": 28, "lot": 5, "categorie": "piege_limite", "question": "Combien de cas de choléra en semaine 50 ?"},
+  {"id": 29, "lot": 5, "categorie": "piege_limite", "question": "Combien de cas de paludisme à Goma cette année ?"},
+  {"id": 30, "lot": 5, "categorie": "hors_perimetre", "question": "Faut-il envoyer des TDR en priorité à Mongbwalu ?"}
+]

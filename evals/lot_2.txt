@@ -1,0 +1,8 @@
+Réponds séparément à chacune de ces questions, chacune avec ses sources :
+
+1. Quelles sont les 5 zones avec le plus de cas de paludisme suspect entre les semaines 36 et 39 ?
+2. Quelles sont les 3 zones avec le taux de fièvre typhoïde le plus élevé depuis le début de l'année ?
+3. Entre Bunia et Rwampara, quelle zone a le plus de cas d'IRA entre les semaines 20 et 43 ?
+4. Quelle semaine compte le plus de cas de pneumonie dans la province ?
+5. Quelle zone a le plus de décès de fièvre hémorragique aiguë depuis le début de l'année ?
+6. Comment le syndrome grippal a-t-il évolué entre les semaines 39 et 40 ?

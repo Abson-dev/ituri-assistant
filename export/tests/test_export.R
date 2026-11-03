@@ -106,6 +106,21 @@ test_that("rule-based tables match the pipeline at each tested week", {
   }
 })
 
+test_that("comparable zones with a line exclude zones in a confirmation break", {
+  skip_if_not(S == 43L)
+  e <- evo[evo$semaine_ref == 43, ]
+  conf <- e[e$maladie == "PALUDISME CONF", ]
+  susp <- e[e$maladie == "PALUDISME SUSP", ]
+  expect_equal(conf$zones_comparables, 32)
+  zones <- intersect(unique(d$zs[d$semaine == 43]), unique(d$zs[d$semaine == 42]))
+  ruptures <- rup$zs[rup$semaine_ref == 43 & !is.na(rup$debut_rupture)]
+  expect_true(all(ruptures %in% zones))
+  expect_lte(conf$zones_comparables_avec_ligne, 32 - length(ruptures))
+  a_ligne <- function(code, s) d$zs[d$maladie == code & d$semaine == s]
+  expect_equal(conf$zones_comparables_avec_ligne, length(Reduce(intersect, list(zones, a_ligne("PALUDISME CONF", 43), a_ligne("PALUDISME CONF", 42)))))
+  expect_gte(susp$zones_comparables_avec_ligne, conf$zones_comparables_avec_ligne)
+})
+
 # The synthetic base crosses no threshold, so lowered thresholds exercise the non-empty path.
 test_that("alert rows carry the expected fields when thresholds are crossed", {
   bas <- cfg

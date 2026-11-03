@@ -87,6 +87,12 @@ class Outils(unittest.TestCase):
         self.assertEqual(round(100 * s["confirmes_sur_suspects_toutes_zones"], 1), 54.1)
         self.assertEqual({z["zone"] for z in s["zones_en_rupture"]}, {"Bambu", "Komanda", "Mongbwalu"})
 
+    def test_zones_comparables_sans_les_ruptures(self) -> None:
+        m = {l["code"]: l for l in self.ok("situation", "--semaine", "43")["lignes"]}
+        conf = m["PALUDISME CONF"]
+        self.assertEqual(conf["zones_comparables"], 32)
+        self.assertLessEqual(conf["zones_comparables_avec_ligne"], 29)
+
     def test_variation_masquee_sous_le_seuil(self) -> None:
         m = {l["code"]: l for l in self.ok("situation", "--semaine", "43")["lignes"]}
         self.assertIsNone(m["ROUGEOLE"]["variation_zones_comparables"])
