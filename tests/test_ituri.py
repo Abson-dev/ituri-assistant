@@ -134,6 +134,29 @@ class Outils(unittest.TestCase):
         self.assertEqual(r["lignes"][0]["cas"], 0)
         self.assertEqual(r["lignes"][0]["statut"], "ligne_presente")
 
+    def test_maladie_suivie_sans_ligne_reste_connue(self) -> None:
+        m = {x["code"]: x for x in self.ok("catalogue")["maladies"]}
+        self.assertFalse(m["CHOLERA"]["lignes_dans_la_base"])
+        self.assertTrue(m["IRA"]["lignes_dans_la_base"])
+        r = self.ok("serie", "--maladie", "CHOLERA", "--de", "43", "--a", "43")
+        self.assertIsNone(r["lignes"][0]["cas"])
+        self.assertEqual(r["lignes"][0]["statut"], "aucune_ligne_dans_la_base")
+        z = self.ok("serie", "--maladie", "cholera", "--zone", "BUNIA", "--de", "43", "--a", "43")
+        self.assertIsNone(z["lignes"][0]["cas"])
+        self.assertIn("Choléra", self.ok("situation")["resume"]["maladies_suivies_sans_aucune_ligne"])
+        self.assertEqual(self.ok("classement", "--maladie", "CHOLERA")["lignes"], [])
+
+    def test_plusieurs_zones_sous_les_deux_formes(self) -> None:
+        a = self.ok("serie", "--maladie", "IRA", "--zone", "BUNIA", "RWAMPARA", "--de", "43", "--a", "43")
+        b = self.ok("serie", "--maladie", "IRA", "--zone", "BUNIA", "--zone", "RWAMPARA", "--de", "43", "--a", "43")
+        self.assertEqual(a["filtres"]["zones"], ["BUNIA", "RWAMPARA"])
+        self.assertEqual(a["lignes"], b["lignes"])
+
+    def test_seuils_et_conflits_explicites(self) -> None:
+        self.assertIn("DPS", self.ok("catalogue")["seuils_alerte"]["meningite"])
+        self.assertIn("rougeole", self.ok("situation")["resume"]["seuils_alerte"])
+        self.assertEqual(len(self.ok("qualite")["resume"]["conflits_a_arbitrer_avec_la_dps"]), 5)
+
     def test_province_partielle_signalee(self) -> None:
         r = self.ok("serie", "--maladie", "IRA", "--de", "43", "--a", "43")
         self.assertEqual(r["lignes"][0]["zones_rapportees"], 35)

@@ -39,6 +39,7 @@ Sans `--a` ni `--semaine`, l'outil prend la dernière semaine. « Paludisme » s
 
 - Reprends dans ta réponse les `avertissements` qui concernent ta conclusion.
 - `cas: null` ou `cas_semaine: null` signifie qu'aucune ligne n'existe : ne l'écris jamais comme un zéro.
+- Une maladie avec `lignes_dans_la_base: false` est suivie, mais n'a aucune ligne dans la base. Dis-le ainsi : ne la présente pas comme une maladie absente du suivi.
 - Ne compare pas des totaux provinciaux bruts entre semaines. Pour une évolution, utilise `variation_zones_comparables` et cite `zones_comparables_avec_ligne`, le nombre de zones qui ont une ligne pour cette maladie les deux semaines. Si la variation est nulle, dis qu'aucune comparaison fiable n'est possible.
 - Une baisse peut venir de moins de consultations ou de notifications autant que de moins de maladie. Une hausse aussi peut venir de la notification.
 - Le rapport confirmés / suspects n'est pas la positivité : le nombre de patients testés n'est pas dans la base. Donne les deux valeurs (toutes zones et hors ruptures).

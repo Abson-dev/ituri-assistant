@@ -271,6 +271,8 @@ def situation(d: Donnees, a: argparse.Namespace) -> dict[str, Any]:
         "confirmes_sur_suspects_hors_ruptures": nombre(pos["corrigee"]) if pos else None,
         "zones_en_rupture": [{"zone": d.zones[z]["nom"], "depuis": x} for z, x in sorted(ruptures.items(), key=lambda v: v[1])],
         "alertes": alertes,
+        "seuils_alerte": d.catalogue["seuils_alerte"],
+        "maladies_suivies_sans_aucune_ligne": [m["nom"] for m in d.maladies.values() if not m["lignes_dans_la_base"]],
     }
     avertissements = [
         "La variation porte sur les zones ayant rapporté les deux semaines, à partir de 10 cas ; sinon elle est nulle.",
@@ -300,7 +302,7 @@ def qualite(d: Donnees, a: argparse.Namespace) -> dict[str, Any]:
     ]
     resume = {
         "zones_en_rupture": [{"zone": d.zones[z]["nom"], "depuis": x} for z, x in sorted(ruptures.items(), key=lambda v: v[1]) if zone is None or z == zone],
-        "conflits_a_arbitrer": conflits,
+        "conflits_a_arbitrer_avec_la_dps": conflits,
         "journal_base_entiere": [{"regle": l["regle"], "occurrences": int(l["occurrences"]), "action": l["action"]} for l in d.table("journal")],
     }
     return reponse(d, "qualite", {"semaine": s, "zone": zone or "toutes"}, lignes, ["Une zone-semaine compte comme rapportée si la zone a soumis au moins une ligne."], resume)
@@ -317,6 +319,7 @@ def catalogue(d: Donnees, a: argparse.Namespace) -> dict[str, Any]:
         "ok": True, "outil": "catalogue", "source": d.source,
         "semaines": {"de": 1, "a": d.semaine_max},
         "semaine_declaration_ebola": d.catalogue["semaine_declaration"],
+        "seuils_alerte": d.catalogue["seuils_alerte"],
         "zones": zones, "maladies": maladies,
     }
 
@@ -395,7 +398,7 @@ def analyseur() -> argparse.ArgumentParser:
 
     c = sous.add_parser("serie", help="Cas, décès et taux par semaine")
     c.add_argument("--maladie", required=True)
-    c.add_argument("--zone", action="append", help="Répéter pour plusieurs zones ; absent : province")
+    c.add_argument("--zone", action="extend", nargs="+", help="Une ou plusieurs zones ; absent : province")
     c.add_argument("--de", type=int)
     c.add_argument("--a", type=int)
     c.set_defaults(fonction=serie)

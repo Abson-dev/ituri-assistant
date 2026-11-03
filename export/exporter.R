@@ -39,8 +39,9 @@ ids <- nettoyer_ids(base, cfg)
 d <- ids$donnees
 zones <- sort(unique(d$zs))
 semaines <- sort(unique(d$semaine))
-codes <- unique(c(unlist(cfg$tableau_principal), unlist(cfg$tableau_autres)))
-codes <- codes[codes %in% unique(d$maladie)]
+# A monitored disease with no line stays known, so it is never mistaken for an unknown disease.
+suivies <- unique(c(unlist(cfg$tableau_principal), unlist(cfg$tableau_autres)))
+codes <- suivies[suivies %in% unique(d$maladie)]
 
 # The dashboard filters to data available up to week S before applying the break rule.
 ids_jusqua <- function(s) {
@@ -96,7 +97,13 @@ catalogue <- list(
   semaine_declaration = cfg$epidemie$semaine_rupture,
   origine_semaine1 = cfg$donnees$origine_semaine1,
   zones = lapply(zones, function(z) list(code = z, nom = nom_zone(z), population = ids$pop$pop_ref[ids$pop$zs == z])),
-  maladies = lapply(codes, function(k) list(code = k, nom = libelle(k, cfg))),
+  maladies = lapply(suivies, function(k) list(code = k, nom = libelle(k, cfg), lignes_dans_la_base = k %in% codes)),
+  seuils_alerte = list(
+    rougeole = sprintf("Au moins %d cas dans une zone et au moins %d fois la moyenne des %d semaines précédentes",
+                       cfg$seuils$rougeole_min_cas, cfg$seuils$rougeole_facteur, cfg$seuils$rougeole_fenetre),
+    meningite = sprintf("Alerte à partir de %d et épidémie à partir de %d cas par semaine pour 100 000 habitants ; seuils à valider avec la DPS",
+                        cfg$seuils$meningite_alerte, cfg$seuils$meningite_epidemique)
+  ),
   tables = c("observations", "rapportage", "ruptures", "positivite", "evolutions", "alertes", "journal", "conflits")
 )
 
