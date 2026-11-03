@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import csv
+import datetime as dt
 import json
 import os
 import shutil
@@ -34,8 +35,9 @@ class Outils(unittest.TestCase):
     def tearDownClass(cls) -> None:
         cls.temp.cleanup()
 
-    def lancer(self, *args: str, donnees: Path | None = None) -> tuple[int, dict]:
-        env = {**os.environ, "ITURI_DONNEES": str(donnees or self.donnees), "ITURI_SORTIES": str(self.sorties)}
+    def lancer(self, *args: str, donnees: Path | None = None, accord: Path | None = None) -> tuple[int, dict]:
+        env = {**os.environ, "ITURI_DONNEES": str(donnees or self.donnees), "ITURI_SORTIES": str(self.sorties),
+               "ITURI_ACCORD": str(accord or self.travail / "sans_accord.json")}
         p = subprocess.run([sys.executable, str(OUTIL), *args], capture_output=True, encoding="utf-8", env=env)
         self.assertEqual(p.stderr, "")
         return p.returncode, json.loads(p.stdout)
@@ -45,8 +47,8 @@ class Outils(unittest.TestCase):
         self.assertEqual(code, 0, r)
         return r
 
-    def erreur(self, *args: str, donnees: Path | None = None) -> str:
-        code, r = self.lancer(*args, donnees=donnees)
+    def erreur(self, *args: str, donnees: Path | None = None, accord: Path | None = None) -> str:
+        code, r = self.lancer(*args, donnees=donnees, accord=accord)
         self.assertEqual(code, 2, r)
         self.assertFalse(r["ok"])
         return r["erreur"]
@@ -66,6 +68,47 @@ class Outils(unittest.TestCase):
             del cat["synthetique"]
             (autre / "catalogue.json").write_text(json.dumps(cat), encoding="utf-8")
             self.assertIn("Refus", self.erreur("situation", donnees=autre))
+
+    def test_verrou_de_l_accord(self) -> None:
+        with tempfile.TemporaryDirectory() as t:
+            autre = Path(t) / "x"
+            shutil.copytree(self.donnees, autre)
+            cat = json.loads((autre / "catalogue.json").read_text(encoding="utf-8"))
+            cat["synthetique"] = False
+            (autre / "catalogue.json").write_text(json.dumps(cat), encoding="utf-8")
+            chemin = Path(t) / "accord.json"
+            auj = dt.date.today()
+            valide = {
+                "accorde_par": "Test", "date_accord": (auj - dt.timedelta(days=1)).isoformat(),
+                "echeance": (auj + dt.timedelta(days=1)).isoformat(), "personnes_autorisees": ["Test"],
+                "couvre_envoi_a_anthropic_avec_abonnement": True, "reglage_entrainement_desactive": True, "exclusions": "",
+            }
+            ecrire = lambda a: chemin.write_text(json.dumps(a), encoding="utf-8")
+            ecrire(valide)
+            code, r = self.lancer("situation", donnees=autre, accord=chemin)
+            self.assertEqual(code, 0, r)
+            self.assertFalse(r["source"]["synthetique"])
+            cas_refuses = [
+                {"couvre_envoi_a_anthropic_avec_abonnement": False},
+                {"reglage_entrainement_desactive": False},
+                {"couvre_envoi_a_anthropic_avec_abonnement": "true"},
+                {"accorde_par": " "},
+                {"personnes_autorisees": []},
+                {"exclusions": "faibles effectifs"},
+                {"echeance": (auj - dt.timedelta(days=1)).isoformat()},
+                {"date_accord": (auj + dt.timedelta(days=1)).isoformat()},
+                {"date_accord": "AAAA-MM-JJ"},
+            ]
+            for changement in cas_refuses:
+                ecrire({**valide, **changement})
+                self.assertIn("Refus", self.erreur("situation", donnees=autre, accord=chemin), changement)
+            chemin.write_text("pas du json", encoding="utf-8")
+            self.assertIn("Refus", self.erreur("catalogue", donnees=autre, accord=chemin))
+            ecrire(valide)
+            code, r = self.lancer("serie", "--maladie", "IRA", "--de", "43", "--a", "43", donnees=autre, accord=chemin)
+            code, p = self.lancer("publier", "--ids", r["resultat_id"], "--titre", "t", donnees=autre, accord=chemin)
+            self.assertEqual(code, 0, p)
+            self.assertIn("DONNÉES RÉELLES", Path(p["fichiers"][0]).read_text(encoding="utf-8"))
 
     def test_chiffres_du_tableau_de_bord_s43(self) -> None:
         r = self.ok("situation", "--semaine", "43")

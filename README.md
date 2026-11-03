@@ -12,7 +12,7 @@ The design is inspired by [eurostat-assistant](https://github.com/ainergy-hub/eu
 | 2 | Read-only tools and a Claude Code skill | Done |
 | 3 | Evaluation on 30 questions | Done, see `evals/RESULTATS.md` |
 | 4 | Password-protected web app, with the Claude API | To do |
-| 5 | Real data, after written agreement from MSF and the DPS | Blocked |
+| 5 | Real data | Lock ready; off until the agreement file is filled in, then a new evaluation |
 
 ## Use the skill
 
@@ -71,4 +71,6 @@ Indicators that depend on rules are computed by the pipeline, never by the assis
 ## Data rules
 
 - No real data in this repository, and none sent to a model without written agreement from MSF and the DPS.
+- Real data stays on this computer's disk, but a Claude subscription runs the model at Anthropic: the questions and every row the agent reads are sent there.
+- To turn real data on, copy `accord.local.example.json` to `accord.local.json`, fill it in, and run `Rscript export/exporter.R --pipeline="<path>" --reelles`. Git ignores that file. The tools refuse real data if it is missing, incomplete or expired, and they never fall back silently to synthetic data. Delete the file to turn real data off.
 - The impact analysis, marked as not for release, is out of scope for now.

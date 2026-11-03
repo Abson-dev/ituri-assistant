@@ -30,6 +30,39 @@ class Erreur(Exception):
     """A request the agent can correct: returned as JSON with exit code 2."""
 
 
+def chemin_accord() -> Path:
+    return Path(os.environ.get("ITURI_ACCORD", RACINE / "accord.local.json"))
+
+
+def verifier_accord() -> None:
+    """Real data needs the agreement recorded by the user on this computer, still in force."""
+    chemin = chemin_accord()
+    refus = "Refus : données réelles sans accord valide"
+    if not chemin.is_file():
+        raise Erreur(f"{refus} (aucun fichier d'accord sur ce poste).")
+    try:
+        a = json.loads(chemin.read_text(encoding="utf-8"))
+        debut = dt.date.fromisoformat(a["date_accord"])
+        fin = dt.date.fromisoformat(a["echeance"])
+    except (ValueError, KeyError, TypeError) as exc:
+        raise Erreur(f"{refus} (fichier d'accord illisible).") from exc
+    aujourd_hui = dt.date.today()
+    if not str(a.get("accorde_par", "")).strip():
+        raise Erreur(f"{refus} (accorde_par vide).")
+    if debut > aujourd_hui:
+        raise Erreur(f"{refus} (date d'accord dans le futur).")
+    if fin < aujourd_hui:
+        raise Erreur(f"{refus} (accord expiré le {fin}).")
+    if a.get("couvre_envoi_a_anthropic_avec_abonnement") is not True:
+        raise Erreur(f"{refus} (envoi à Anthropic avec abonnement non couvert).")
+    if a.get("reglage_entrainement_desactive") is not True:
+        raise Erreur(f"{refus} (réglage d'entraînement non confirmé comme désactivé).")
+    if not a.get("personnes_autorisees"):
+        raise Erreur(f"{refus} (personnes_autorisees vide).")
+    if str(a.get("exclusions", "")).strip():
+        raise Erreur(f"{refus} (exclusions pas encore prises en charge).")
+
+
 def normaliser(texte: str) -> str:
     sans_accent = unicodedata.normalize("NFKD", texte)
     sans_accent = "".join(c for c in sans_accent if not unicodedata.combining(c))
@@ -51,9 +84,12 @@ class Donnees:
         if not chemin.is_file():
             raise Erreur(f"Export introuvable dans {dossier}. Lancer export/exporter.R.")
         self.catalogue = json.loads(chemin.read_text(encoding="utf-8"))
-        # Real data needs written agreement from MSF and the DPS: there is deliberately no override.
-        if self.catalogue.get("synthetique") is not True:
-            raise Erreur("Refus : cet outil n'accepte que des données synthétiques.")
+        # Anything not explicitly marked is refused, and real data must pass the agreement check.
+        marque = self.catalogue.get("synthetique")
+        if marque is False:
+            verifier_accord()
+        elif marque is not True:
+            raise Erreur("Refus : export sans indication synthétique ou réelle.")
         self.semaine_max = int(self.catalogue["semaine_max"])
         self.origine = dt.date.fromisoformat(self.catalogue["origine_semaine1"])
         self.zones = {z["code"]: z for z in self.catalogue["zones"]}
@@ -70,7 +106,7 @@ class Donnees:
     @property
     def source(self) -> dict[str, Any]:
         s = self.catalogue["source"]
-        return {"fichier": s["fichier"], "sha256": s["sha256"], "synthetique": True}
+        return {"fichier": s["fichier"], "sha256": s["sha256"], "synthetique": self.catalogue["synthetique"]}
 
     def date(self, semaine: int) -> str:
         return (self.origine + dt.timedelta(days=7 * (semaine - 1))).isoformat()
@@ -365,7 +401,8 @@ def publier(d: Donnees, a: argparse.Namespace) -> dict[str, Any]:
     base = re.sub(r"[^a-z0-9]+", "-", lisible).strip("-")[:50] or "resultat"
     sortie.mkdir(parents=True, exist_ok=True)
     fichiers = []
-    md = [f"# {titre}", "", "**DONNÉES SYNTHÉTIQUES : aucune valeur n'est réelle.**", ""]
+    bandeau = "DONNÉES SYNTHÉTIQUES : aucune valeur n'est réelle." if d.source["synthetique"] else "DONNÉES RÉELLES : à vérifier par une personne, ne pas diffuser sans validation."
+    md = [f"# {titre}", "", f"**{bandeau}**", ""]
     for identifiant, r in resultats:
         csv_nom = f"{base}-{identifiant}.csv"
         if r["lignes"]:
@@ -432,7 +469,9 @@ def main() -> int:
         sys.stdout.reconfigure(encoding="utf-8")
     args = analyseur().parse_args()
     try:
-        dossier = Path(os.environ.get("ITURI_DONNEES", RACINE / "data" / "synthetic"))
+        # An agreement file selects real data. If it is invalid, the tool refuses: it never falls back silently.
+        defaut = RACINE / "data" / ("reelles" if chemin_accord().is_file() else "synthetic")
+        dossier = Path(os.environ.get("ITURI_DONNEES", defaut))
         resultat = args.fonction(Donnees(dossier), args)
     except Erreur as exc:
         print(json.dumps({"ok": False, "erreur": str(exc)}, ensure_ascii=False))

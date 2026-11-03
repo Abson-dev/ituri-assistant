@@ -1,0 +1,9 @@
+{
+  "accorde_par": "",
+  "date_accord": "AAAA-MM-JJ",
+  "echeance": "AAAA-MM-JJ",
+  "personnes_autorisees": [],
+  "couvre_envoi_a_anthropic_avec_abonnement": false,
+  "reglage_entrainement_desactive": false,
+  "exclusions": ""
+}

@@ -3,7 +3,7 @@
 #
 # The assistant never recomputes an indicator: every value that depends on rules (reporting,
 # malaria breaks, positivity, comparable trends, alerts) comes from the pipeline's own functions.
-# This export is synthetic-only: real data stays out until MSF and the DPS agree in writing.
+# Synthetic by default. --reelles needs the agreement recorded in accord.local.json.
 
 args <- commandArgs(trailingOnly = TRUE)
 valeur <- function(nom, defaut = NULL) {
@@ -16,24 +16,27 @@ if (!nzchar(pipeline) || !file.exists(file.path(pipeline, "R", "donnees.R"))) {
   stop("Pass --pipeline=<path to the surveillance pipeline repository>.", call. = FALSE)
 }
 pipeline <- normalizePath(pipeline, winslash = "/")
-sortie <- valeur("sortie", file.path(dirname(ici), "data", "synthetic"))
+reelles <- "--reelles" %in% args
+sortie <- valeur("sortie", file.path(dirname(ici), "data", if (reelles) "reelles" else "synthetic"))
+source(file.path(ici, "tables.R"), encoding = "UTF-8")
+accord <- if (reelles) verifier_accord(valeur("accord", Sys.getenv("ITURI_ACCORD", file.path(dirname(ici), "accord.local.json"))))
 
 # Forced, whatever the caller's environment says.
-Sys.setenv(ITURI_DEMO = "1")
+Sys.setenv(ITURI_DEMO = if (reelles) "0" else "1")
 setwd(pipeline)
 for (f in c("R/donnees.R", "R/indicateurs.R", "R/figures.R", "dashboard/R/donnees_app.R")) {
   source(file.path(pipeline, f), encoding = "UTF-8", local = FALSE)
 }
-source(file.path(ici, "tables.R"), encoding = "UTF-8")
 
 cfg <- lire_config()
-if (!dir.exists(chemin_donnees("raw"))) {
+if (!reelles && !dir.exists(chemin_donnees("raw"))) {
   source(file.path(pipeline, "R/donnees_synthetiques.R"), encoding = "UTF-8")
   generer_donnees_synthetiques(cfg)
 }
 base <- trouver_base(cfg)
-if (!grepl("/data/synthetic/raw/", normalizePath(base, winslash = "/"), fixed = TRUE)) {
-  stop("Refused: the export only accepts synthetic data.", call. = FALSE)
+attendu <- if (reelles) "/data/raw/" else "/data/synthetic/raw/"
+if (!grepl(attendu, normalizePath(base, winslash = "/"), fixed = TRUE)) {
+  stop("Refused: unexpected data source for this mode.", call. = FALSE)
 }
 ids <- nettoyer_ids(base, cfg)
 d <- ids$donnees
@@ -91,7 +94,7 @@ conflits <- ids$conflits |>
   dplyr::transmute(zs, zone = nom_zone(zs), semaine = as.integer(numsem), maladie, valeurs)
 
 catalogue <- list(
-  synthetique = TRUE,
+  synthetique = !reelles,
   source = list(fichier = ids$fichier, sha256 = ids$sha256),
   semaine_max = ids$semaine_max,
   semaine_declaration = cfg$epidemie$semaine_rupture,
@@ -119,5 +122,5 @@ ecrire(journal, "journal")
 ecrire(conflits, "conflits")
 jsonlite::write_json(catalogue, file.path(sortie, "catalogue.json"), auto_unbox = TRUE, pretty = TRUE)
 
-cat(sprintf("Synthetic export written to %s\n  %d observations, %d zones, weeks %d-%d\n",
-            sortie, nrow(observations), length(zones), min(semaines), max(semaines)))
+cat(sprintf("%s export written to %s\n  %d observations, %d zones, weeks %d-%d\n",
+            if (reelles) "REAL DATA" else "Synthetic", sortie, nrow(observations), length(zones), min(semaines), max(semaines)))

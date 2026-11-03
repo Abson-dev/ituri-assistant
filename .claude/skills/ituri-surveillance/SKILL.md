@@ -7,7 +7,12 @@ description: Répond aux questions sur la surveillance épidémiologique de la p
 
 Réponds dans la langue de la question, à partir des seuls résultats de l'outil ci-dessous.
 
-**Commence toute réponse par : « Données synthétiques : aucune valeur n'est réelle. »**
+**Commence toute réponse selon `source.synthetique` dans les résultats de l'outil :**
+
+- `true` : « Données synthétiques : aucune valeur n'est réelle. »
+- `false` : « Données réelles : réponse à vérifier par une personne, à ne pas diffuser sans validation. »
+
+Si l'outil refuse faute d'accord valide, dis-le et n'essaie pas de contourner ce refus.
 
 ## Outil
 

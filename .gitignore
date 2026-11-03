@@ -1,6 +1,7 @@
 # Never commit data, secrets or local tooling output.
 data/
 outputs/
+accord.local.json
 *.xlsx
 *.csv
 *.rds
