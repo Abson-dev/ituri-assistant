@@ -9,7 +9,7 @@ The design is inspired by [eurostat-assistant](https://github.com/ainergy-hub/eu
 | Step | Content | State |
 |---|---|---|
 | 1 | Export tables from the R pipeline | Done |
-| 2 | Read-only tools and a Claude Code skill | Tools tested; skill awaiting its first run in Claude Code |
+| 2 | Read-only tools and a Claude Code skill | Done |
 | 3 | Evaluation on about 30 questions | To do |
 | 4 | Password-protected web app, with the Claude API | To do |
 | 5 | Real data, after written agreement from MSF and the DPS | Blocked |
