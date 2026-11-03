@@ -160,14 +160,18 @@ def serie(d: Donnees, a: argparse.Namespace) -> dict[str, Any]:
         rapporte = {s: len(d.zones_ayant_rapporte(s)) for s in range(debut, fin + 1)}
         for s in range(debut, fin + 1):
             ici = [l for l in obs if int(l["semaine"]) == s]
-            cas = sum(float(l["cas"]) for l in ici)
+            # No line in any zone is not a confirmed zero. The dashboard draws these weeks as 0.
+            cas = sum(float(l["cas"]) for l in ici) if ici else None
             lignes.append({
                 "territoire": "Province", "semaine": s, "date": d.date(s), "cas": cas,
-                "deces": sum(float(l["deces"]) for l in ici),
-                "taux_100k": cas / d.pop_totale * 1e5,
+                "deces": sum(float(l["deces"]) for l in ici) if ici else None,
+                "taux_100k": cas / d.pop_totale * 1e5 if ici else None,
                 "zones_rapportees": rapporte[s], "zones_avec_ligne": len(ici),
+                "statut": "ligne_presente" if ici else "aucune_ligne_dans_la_base",
             })
         avertissements += repere_semaine_partielle(d, rapporte)
+        if any(l["cas"] is None for l in lignes):
+            avertissements.append("Valeur nulle = aucune ligne dans la base, ce qui n'est pas un zéro confirmé.")
     else:
         index = {(l["zs"], int(l["semaine"])): l for l in obs}
         for z in zones:
@@ -230,11 +234,12 @@ def situation(d: Donnees, a: argparse.Namespace) -> dict[str, Any]:
     totaux: dict[str, dict[str, float]] = {}
     for l in d.table("observations"):
         if int(l["semaine"]) <= s:
-            t = totaux.setdefault(l["maladie"], {"cumul": 0.0, "cumul_deces": 0.0, "deces": 0.0})
+            t = totaux.setdefault(l["maladie"], {"cumul": 0.0, "cumul_deces": 0.0, "deces": 0.0, "lignes": 0})
             t["cumul"] += float(l["cas"])
             t["cumul_deces"] += float(l["deces"])
             if int(l["semaine"]) == s:
                 t["deces"] += float(l["deces"])
+                t["lignes"] += 1
     lignes = []
     for code, m in d.maladies.items():
         e, t = evo.get(code), totaux.get(code)
@@ -243,7 +248,10 @@ def situation(d: Donnees, a: argparse.Namespace) -> dict[str, Any]:
         base = float(e["cas_base_comparable"])
         variation = nombre(e["variation"]) if base >= BASE_MIN_VARIATION else None
         lignes.append({
-            "maladie": m["nom"], "code": code, "cas_semaine": float(e["cas_province"]), "deces_semaine": t["deces"],
+            "maladie": m["nom"], "code": code,
+            "cas_semaine": float(e["cas_province"]) if t["lignes"] else None,
+            "deces_semaine": t["deces"] if t["lignes"] else None,
+            "zones_avec_ligne": t["lignes"],
             "variation_zones_comparables": variation, "zones_comparables": int(e["zones_comparables"]),
             "cumul_cas": t["cumul"], "cumul_deces": t["cumul_deces"],
         })
@@ -267,6 +275,8 @@ def situation(d: Donnees, a: argparse.Namespace) -> dict[str, Any]:
         "La variation porte sur les zones ayant rapporté les deux semaines, à partir de 10 cas ; sinon elle est nulle.",
         "Le rapport confirmés / suspects n'est qu'un indicateur approché : le nombre de patients testés n'est pas dans la base.",
     ]
+    if any(l["cas_semaine"] is None for l in lignes):
+        avertissements.append("Valeur nulle = aucune ligne dans la base cette semaine, ce qui n'est pas un zéro confirmé.")
     return reponse(d, "situation", {"semaine": s}, lignes, avertissements, resume)
 
 

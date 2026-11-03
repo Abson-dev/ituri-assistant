@@ -32,15 +32,16 @@ S <- ids$semaine_max
 maladies <- c("PALUDISME SUSP", "PALUDISME CONF", "IRA", "FHA", "ROUGEOLE", "MENINGITE")
 zones <- c("MONGBWALU", "NYARAMBE", "BUNIA", "NIA-NIA")
 
-test_that("province series match the dashboard", {
+test_that("province series match the dashboard, except that a week with no line stays missing", {
   for (code in maladies) {
     r <- appel("serie", "--maladie", code)$lignes
     a <- serie_cible(d, code, S)
     expect_equal(r$semaine, a$semaine)
-    expect_equal(r$cas, a$cas)
-    expect_equal(r$deces, a$deces)
+    expect_equal(dplyr::coalesce(r$cas, 0), a$cas)
+    expect_equal(dplyr::coalesce(r$deces, 0), a$deces)
     expect_equal(r$zones_rapportees, a$zones)
-    expect_equal(r$taux_100k, a$cas / sum(ids$pop$pop_ref) * 1e5, tolerance = 1e-9)
+    expect_equal(dplyr::coalesce(r$taux_100k, 0), a$cas / sum(ids$pop$pop_ref) * 1e5, tolerance = 1e-9)
+    expect_setequal(r$semaine[!is.na(r$cas)], unique(d$semaine[d$maladie == code]))
   }
 })
 
@@ -77,8 +78,11 @@ test_that("weekly overview matches the report table and the dashboard", {
     t <- tableau_maladies(d, codes, s, cfg) |> dplyr::filter(cumul > 0)
     m <- dplyr::inner_join(t, r$lignes, by = c("maladie" = "code"), suffix = c("", "_o"))
     expect_equal(nrow(m), nrow(t))
-    expect_equal(m$cas_semaine, m[[paste0("S", s)]])
-    expect_equal(m$deces_semaine, m$dc_S)
+    # The report table shows 0 where the tool keeps "no line" as missing.
+    expect_equal(dplyr::coalesce(m$cas_semaine, 0), m[[paste0("S", s)]])
+    expect_equal(dplyr::coalesce(m$deces_semaine, 0), m$dc_S)
+    avec_ligne <- unique(d$maladie[d$semaine == s])
+    expect_setequal(m$maladie[!is.na(m$cas_semaine)], intersect(m$maladie, avec_ligne))
     expect_equal(m$cumul_cas, m$cumul)
     expect_equal(m$cumul_deces, m$cumul_dc)
     expect_equal(r$resume$zones_rapportees, dplyr::n_distinct(d$zs[d$semaine == s]))

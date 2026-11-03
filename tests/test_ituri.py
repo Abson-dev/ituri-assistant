@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import csv
 import json
 import os
 import shutil
@@ -96,6 +97,36 @@ class Outils(unittest.TestCase):
         self.assertIsNone(l["cas"])
         self.assertEqual(l["statut"], "zone_n_a_pas_rapporte")
         self.assertTrue(any("zéro confirmé" in a for a in r["avertissements"]))
+
+    def test_semaine_sans_ligne_en_province_n_est_pas_un_zero(self) -> None:
+        r = self.ok("serie", "--maladie", "FHA", "--de", "19", "--a", "20")
+        sans, avec = r["lignes"]
+        self.assertIsNone(sans["cas"])
+        self.assertIsNone(sans["deces"])
+        self.assertIsNone(sans["taux_100k"])
+        self.assertEqual(sans["zones_avec_ligne"], 0)
+        self.assertEqual(sans["statut"], "aucune_ligne_dans_la_base")
+        self.assertIsNotNone(avec["cas"])
+        self.assertTrue(any("zéro confirmé" in a for a in r["avertissements"]))
+
+    def test_semaine_sans_ligne_dans_la_situation_n_est_pas_un_zero(self) -> None:
+        r = self.ok("situation", "--semaine", "43")
+        m = {l["code"]: l for l in r["lignes"]}
+        self.assertEqual(m["DIARR SANGLANTE"]["zones_avec_ligne"], 0)
+        self.assertIsNone(m["DIARR SANGLANTE"]["cas_semaine"])
+        self.assertIsNone(m["DIARR SANGLANTE"]["deces_semaine"])
+        self.assertGreater(m["DIARR SANGLANTE"]["cumul_cas"], 0)
+        self.assertTrue(any("zéro confirmé" in a for a in r["avertissements"]))
+
+    def test_vrai_zero_reste_un_zero(self) -> None:
+        with (self.donnees / "observations.csv").open(encoding="utf-8", newline="") as flux:
+            zero = next((l for l in csv.DictReader(flux) if float(l["cas"]) == 0), None)
+        if zero is None:
+            self.skipTest("No recorded zero in this export.")
+        s = zero["semaine"]
+        r = self.ok("serie", "--maladie", zero["maladie"], "--zone", zero["zs"], "--de", s, "--a", s)
+        self.assertEqual(r["lignes"][0]["cas"], 0)
+        self.assertEqual(r["lignes"][0]["statut"], "ligne_presente")
 
     def test_province_partielle_signalee(self) -> None:
         r = self.ok("serie", "--maladie", "IRA", "--de", "43", "--a", "43")

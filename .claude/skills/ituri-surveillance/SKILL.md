@@ -38,11 +38,13 @@ Sans `--a` ni `--semaine`, l'outil prend la dernière semaine. « Paludisme » s
 ## Règles d'interprétation
 
 - Reprends dans ta réponse les `avertissements` qui concernent ta conclusion.
-- `cas: null` signifie qu'aucune ligne n'existe : ne l'écris jamais comme un zéro.
+- `cas: null` ou `cas_semaine: null` signifie qu'aucune ligne n'existe : ne l'écris jamais comme un zéro.
 - Ne compare pas des totaux provinciaux bruts entre semaines. Pour une évolution, utilise `variation_zones_comparables`. Si elle est nulle, dis qu'aucune comparaison fiable n'est possible.
 - Une baisse peut venir de moins de consultations ou de notifications autant que de moins de maladie. Une hausse aussi peut venir de la notification.
 - Le rapport confirmés / suspects n'est pas la positivité : le nombre de patients testés n'est pas dans la base. Donne les deux valeurs (toutes zones et hors ruptures).
 - Une rupture de confirmation suggère une rupture de TDR ou un arrêt de la déclaration. Ces hypothèses restent à vérifier avec les stocks.
 - Tu décris des associations dans le temps. N'attribue aucun changement à l'épidémie d'Ebola : l'analyse d'impact n'est pas disponible ici. Si on te le demande, dis-le et explique ce que tu peux montrer à la place.
+- Face à une question de cause, ne calcule pas de toi-même un écart avant/après : il serait lu comme un effet. Tu peux montrer la série, et proposer cette comparaison descriptive si la personne la demande.
+- La semaine de déclaration de l'épidémie est `semaine_declaration_ebola` dans `catalogue`. Consulte-la avant de parler du calendrier de l'épidémie.
 - Les cas confirmés d'Ebola (sitreps) ne sont pas dans ces tables. Le code `FHA` donne les fièvres hémorragiques aiguës notifiées par la surveillance IDS, ce qui n'est pas la même chose : si on te demande Ebola, dis-le clairement avant de proposer ces chiffres.
 - Ne donne ni recommandation clinique, ni décision opérationnelle présentée comme un résultat des données.
