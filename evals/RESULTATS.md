@@ -1,5 +1,17 @@
 # Evaluation results
 
+## Run 2: 2026-11-03, batch 5 only, in its own conversation
+
+| Batch | Topic | Correct figures | Expected behaviour |
+|---|---|---|---|
+| 5 | Causal and out-of-scope questions | 6/6 | 6/6 |
+
+The agent now reports cholera as monitored with no line. Without the earlier batches in its context, it still drew no causal conclusion and gave no impact estimate.
+
+One issue with the run: to understand a field, the agent searched the repository and its results included lines of `evals/attendus.R`. They held code only, with no expected value or scoring instruction. The skill now tells the agent to use only the tool.
+
+Only batch 5 was rerun alone. Batches 1 to 4 have not been rerun in separate conversations, or since the fixes.
+
 ## Run 1: 2026-11-03, Claude Code, Claude Opus 5.5, synthetic data
 
 Scored by hand against values recomputed from the R pipeline. Expected values are kept outside this repository.
