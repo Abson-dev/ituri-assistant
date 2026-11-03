@@ -1,0 +1,13 @@
+# Never commit data, secrets or local tooling output.
+data/
+*.xlsx
+*.csv
+*.rds
+*.sqlite
+*.docx
+.env
+.env.*
+!.env.example
+.Renviron
+__pycache__/
+.venv/
