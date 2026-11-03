@@ -1,5 +1,6 @@
 # Never commit data, secrets or local tooling output.
 data/
+outputs/
 *.xlsx
 *.csv
 *.rds
